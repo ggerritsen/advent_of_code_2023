@@ -43,6 +43,28 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
     }
 
     println!("sum {}", sum);
+
+    let mut sum_of_powers = 0;
+    for game in &games {
+        let mut max_red = 0;
+        let mut max_blue = 0;
+        let mut max_green = 0;
+        for round in &game.rounds {
+            if round.red > max_red {
+                max_red = round.red;
+            }
+            if round.blue > max_blue {
+                max_blue = round.blue;
+            }
+            if round.green > max_green {
+                max_green = round.green;
+            }
+        }
+
+        sum_of_powers += max_red * max_blue * max_green;
+    }
+
+    println!("sum of powers is {}", sum_of_powers);
 }
 
 fn parse_game(line: &str) -> Game {
