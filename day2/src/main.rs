@@ -1,9 +1,11 @@
 fn main() {
-    let input = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+    let test_input = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
 Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
 Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
 Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
+
+    let input: &str = include_str!("input.txt");
 
     let mut games = Vec::new();
     for line in input.lines() {
@@ -11,12 +13,36 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
         games.push(g);
     }
 
-    for game in games {
+    for game in &games {
         println!("Game {}", game.number);
-        for round in game.rounds {
+        for round in &game.rounds {
             println!("Round: blue {}, green {}, red {}", round.blue, round.green, round.red);
         }
     }
+
+    // 12 red cubes, 13 green cubes, and 14 blue cubes
+    let red = 12;
+    let green = 13;
+    let blue = 14;
+
+    let mut sum = 0;
+    'outer: for game in &games {
+        for round in &game.rounds {
+            if round.red > red {
+                continue 'outer;
+            }
+            if round.blue > blue {
+                continue 'outer;
+            }
+            if round.green > green {
+                continue 'outer;
+            }
+        }
+        println!("found valid game {}", game.number);
+        sum += game.number;
+    }
+
+    println!("sum {}", sum);
 }
 
 fn parse_game(line: &str) -> Game {
