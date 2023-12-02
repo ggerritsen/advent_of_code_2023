@@ -35,7 +35,7 @@ fn main() {
 
         // get last digit
         let mut index_last = line.rfind(char::is_numeric).or(Some(0)).unwrap();
-        let mut last = line.chars().nth(index_last).or(Some('0')).unwrap().to_string();
+        let mut last = line.chars().nth(index_last).unwrap_or('0').to_string();
         for count in 0..9 {
             let digit = digits[count];
             let index = line.rfind(digit).or(Some(0)).unwrap();
