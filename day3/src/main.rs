@@ -85,4 +85,27 @@ fn main() {
 
     println!("Sum is {}", sum);
 
+    let find_two_nearby_parts = |x, y: usize| -> Option<i32> {
+        
+        return Some(0);
+    };
+
+    let mut product_sum = 0;
+    for i in 0..grid.len() {
+        for j in 0..grid[i].len() {
+            let cell  = grid[i][j];
+            if cell == '*' {
+                // println!("Found gear at location {},{}", i, j);
+
+                let product = find_two_nearby_parts(i, j);
+                if product.is_some() {
+                    println!("Found gear at location {},{}", i, j);
+                    product_sum += product.unwrap();
+                }
+            }
+        }
+    }
+
+    println!("Product sum is {}", product_sum);
+
 }
