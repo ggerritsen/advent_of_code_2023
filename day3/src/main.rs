@@ -1,9 +1,10 @@
+#[allow(clippy::too_many_lines)]
 fn main() {
     let input: &str = include_str!("input.txt");
 
-    let _input: &str = "467..114..
-...*......
-..35..6330
+    let test_input: &str = ".467*35...
+..........
+..35..633.
 ......#...
 617*......
 .....+.58.
@@ -88,8 +89,73 @@ fn main() {
 
     println!("Sum is {sum}");
 
+    // find parts
+    let mut parts: Vec<Part> = Vec::new();
+    for (x, row) in grid.iter().enumerate() {
+        let mut number: Vec<char> = Vec::new();
+        for (y, cell) in row.iter().enumerate() {
+            if cell.is_ascii_digit() {
+                number.push(*cell);
+            }
+
+            if (y == row.len() - 1 || !cell.is_ascii_digit()) && !number.is_empty() {
+                println!("found a number: {number:?}");
+                // found a number
+                let value: i32 = number
+                    .iter()
+                    .fold(String::new(), |collector, c| format!("{collector}{c}"))
+                    .parse()
+                    .unwrap();
+                parts.push(Part {
+                    value,
+                    len: number.len(),
+                    x,
+                    y: y - 1,
+                });
+                number.clear();
+            }
+        }
+    }
+
+    for p in &parts {
+        println!("part: {p:?}");
+    }
+
     let find_two_nearby_parts = |x, y: usize| -> Option<i32> {
-        return Some(0);
+        let min_x = if x > 0 { x - 1 } else { 0 };
+        let max_x = if x < grid.len() - 1 {
+            x + 1
+        } else {
+            grid.len() - 1
+        };
+        println!("min_x, max_x: {min_x}, {max_x}");
+
+        let min_y = if y > 0 { y - 1 } else { 0 };
+        let max_y = if y < grid[0].len() - 1 {
+            y + 1
+        } else {
+            grid[0].len() - 1
+        };
+        println!("min_y, max_y: {min_y}, {max_y}");
+
+        let mut found_part_numbers: Vec<i32> = Vec::new();
+        for p in &parts {
+            if min_x <= p.x
+                && p.x <= max_x
+                && ((min_y <= p.y && p.y <= max_y) || (p.y > max_y && p.y - (p.len - 1) <= max_y))
+            {
+                found_part_numbers.push(p.value);
+            }
+        }
+        if !found_part_numbers.is_empty() {
+            println!("{found_part_numbers:?}");
+        }
+
+        if found_part_numbers.len() == 2 {
+            return Some(found_part_numbers[0] * found_part_numbers[1]);
+        }
+
+        None
     };
 
     let mut product_sum = 0;
@@ -97,9 +163,9 @@ fn main() {
         for j in 0..grid[i].len() {
             let cell = grid[i][j];
             if cell == '*' {
+                println!("Found gear at location {i},{j}");
                 let product = find_two_nearby_parts(i, j);
                 if product.is_some() {
-                    println!("Found gear at location {i},{j}");
                     product_sum += product.unwrap();
                 }
             }
@@ -107,4 +173,12 @@ fn main() {
     }
 
     println!("Product sum is {product_sum}");
+}
+
+#[derive(Debug)]
+struct Part {
+    value: i32,
+    len: usize,
+    x: usize,
+    y: usize,
 }
