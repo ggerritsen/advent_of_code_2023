@@ -15,18 +15,28 @@ fn main() {
 
     let grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
 
-    // find symbols
-    let mut symbol_locations: Vec<Vec<i32>> = Vec::new();
-    for row in &grid {
-        let mut cols: Vec<i32> = Vec::new();
-        for i in 0..row.len() {
-            if !row[i].is_ascii_digit() && row[i] != '.' {
-                println!("Found symbol {} at location {}", row[i], i);
-                cols.push(i as i32);
+    let has_nearby_symbol = |x, y, number_length: usize| -> bool {
+        let min_x = if x > 0 { x - 1 } else { 0 };
+        let max_x = if x < grid.len() { x + 1 } else { grid.len()};
+
+        let row: &Vec<char> = &grid[x];
+        let min_y = if y - number_length > 0 { y - number_length - 1 } else { 0 };
+        let max_y = if y < row.len() { y + 1 } else { row.len() };
+
+        // println!("Checking for nearby symbol between {},{} and {},{}", min_x, min_y, max_x, max_y);
+
+        for i in min_x..=max_x {
+            for j in min_y..max_y {
+                let cell = grid[i][j];
+                // println!("Checking cell {},{}: {}", i, j, cell);
+                if !cell.is_ascii_digit() && cell != '.' {
+                    return true;
+                }
             }
         }
-        symbol_locations.push(cols);
-    }
+
+        false
+    };
 
     // find numbers
     // for each number,
@@ -35,52 +45,22 @@ fn main() {
     // * check if there's a symbol in the next row (y+1) (x-1, x+1)
     let mut sum = 0;
     for i in 0..grid.len() {
-        let mut number: Vec<char> = Vec::new();
-        for j in 1..grid[i].len()+1 {
-            let cell  = grid[i][j-1];
+        let mut number = "".to_string();
+        for j in 0..grid[i].len() {
+            let cell  = grid[i][j];
             if cell.is_ascii_digit() {
-                println!("Found number {} at location {},{}", cell, i, j-1);
+                println!("Found number {} at location {},{}", cell, i, j);
                 number.push(cell);
                 continue;
             } else {
                 if number.len() > 0 {
-                    println!("Found full number len {} at location {},{}", number.len(), i, j-1);
+                    let full_number = number.parse::<i32>().unwrap();
+                    // println!("Found full number {} at location {},{}", full_number, i, j);
 
-                    let min_x = max(j-number.len()-1, 0);
-                    let max_x = min(j+1, grid[i].len());
-
-                    symbol_locations[i].iter().for_each(|&x| {
-                        if x >= min_x as i32 && x < max_x as i32 {
-                            println!("Found symbol {} at location {},{}", grid[i][x as usize], i, x);
-                            let mut g = "".to_string();
-                            number.iter().for_each(|&x| g.push(x));
-                            println!("Adding to sum {}", g);
-                            sum += g.parse::<i32>().unwrap();
-                        }
-                    });
-
-                    let min_y = max((i as i32)-1, 0);
-                    symbol_locations[min_y as usize].iter().for_each(|&x| {
-                        if x >= min_x as i32 && x < max_x as i32 {
-                            println!("Found symbol {} at location {},{}", grid[i][x as usize], i, x);
-                            let mut g = "".to_string();
-                            number.iter().for_each(|&x| g.push(x));
-                            println!("Adding to sum {}", g);
-                            sum += g.parse::<i32>().unwrap();
-                        }
-                    });
-
-                    let max_y = min(i+1, grid[i].len());
-                    symbol_locations[max_y-1].iter().for_each(|&x| {
-                        if x >= min_x as i32 && x < max_x as i32 {
-                            println!("Found symbol {} at location {},{}", grid[i][x as usize], i, x);
-                            let mut g = "".to_string();
-                            number.iter().for_each(|&x| g.push(x));
-                            println!("Adding to sum {}", g);
-                            sum += g.parse::<i32>().unwrap();
-                        }
-                    });
-
+                    if has_nearby_symbol(i, j, number.len()) {
+                        println!("Found part number {} at location {},{}", full_number, i, j);
+                        sum += full_number;
+                    }
                     number.clear();
                 }
             }
@@ -89,12 +69,5 @@ fn main() {
     }
 
     println!("Sum is {}", sum);
-
-    // for row in &grid {
-    //     for col in row {
-    //         print!("{}", col);
-    //     }
-    //     println!("");
-    // }
 
 }
