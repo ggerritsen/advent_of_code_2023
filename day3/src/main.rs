@@ -2,9 +2,11 @@ use std::cmp::{max, min};
 
 fn main() {
 
-    let input: &str = "467..114..
+    let input: &str = include_str!("input.txt");
+
+    let _input: &str = "467..114..
 ...*......
-..35..633.
+..35..6330
 ......#...
 617*......
 .....+.58.
@@ -17,7 +19,7 @@ fn main() {
 
     let has_nearby_symbol = |x, y, number_length: usize| -> bool {
         let min_x = if x > 0 { x - 1 } else { 0 };
-        let max_x = if x < grid.len() { x + 1 } else { grid.len()};
+        let max_x = if x < grid.len()-1 { x + 1 } else { grid.len()-1};
 
         let row: &Vec<char> = &grid[x];
         let min_y = if y - number_length > 0 { y - number_length - 1 } else { 0 };
@@ -51,6 +53,19 @@ fn main() {
             if cell.is_ascii_digit() {
                 println!("Found number {} at location {},{}", cell, i, j);
                 number.push(cell);
+
+                // if we're at the end of a row, then the number is full
+                if j == grid[i].len() - 1 {
+                    let full_number = number.parse::<i32>().unwrap();
+                    // println!("Found full number {} at location {},{}", full_number, i, j);
+
+                    if has_nearby_symbol(i, j, number.len()) {
+                        println!("Found part number {} at location {},{}", full_number, i, j);
+                        sum += full_number;
+                    }
+                    number.clear();
+                }
+
                 continue;
             } else {
                 if number.len() > 0 {
