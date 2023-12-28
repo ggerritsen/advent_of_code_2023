@@ -30,7 +30,7 @@ fn main() {
     let mut results: Vec<i32> = Vec::new();
     for race in races {
         let mut count = 0;
-        for i in 0..race.time {
+        for i in 1..race.time - 1 {
             let d = calculate_distance(i, race.time);
             if d > race.distance {
                 count += 1;
