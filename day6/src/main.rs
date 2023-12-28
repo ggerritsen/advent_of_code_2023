@@ -1,5 +1,7 @@
+use std::time::Instant;
+
 fn main() {
-    let mut input = include_str!("test_input.txt").lines();
+    let mut input = include_str!("input.txt").lines();
 
     let times: Vec<i32> = input
         .next()
@@ -30,6 +32,7 @@ fn main() {
     println!("Hello, world! {:?}", races);
 
     // naive implementation
+    let start = Instant::now();
     let mut results: Vec<i32> = Vec::new();
     for race in &races {
         let mut count = 0;
@@ -42,18 +45,26 @@ fn main() {
         results.push(count);
     }
 
-    println!("got results {:?}", results);
+    println!("got results {:?} in {:?}", results, start.elapsed());
     println!(
         "multiplied this is {}",
         results.iter().fold(1, |acc, x| acc * x)
     );
 
     // optimized implementation
-    // let mut results2: Vec<i32> = Vec::new();
+    let start2 = Instant::now();
+    let mut results2: Vec<i32> = Vec::new();
     for race in &races {
-        println!("{:?}", race);
-        println!("{:?}", quadratic_solution(race));
+        // println!("{:?}", race);
+        let (x1, x2) = quadratic_solution(race);
+        // println!("x1: {}, x2: {}", x1, x2);
+        results2.push(x2 - x1 + 1)
     }
+    println!("got results {:?} in {:?}", results2, start2.elapsed());
+    println!(
+        "multiplied this is {}",
+        results2.iter().fold(1, |acc, x| acc * x)
+    );
 }
 
 fn quadratic_solution(race: &Race) -> (i32, i32) {
