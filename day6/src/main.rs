@@ -1,24 +1,29 @@
 use std::time::Instant;
 
 fn main() {
+    part1();
+    part2();
+}
+
+fn part1() {
     let mut input = include_str!("input.txt").lines();
 
-    let times: Vec<i32> = input
+    let times: Vec<i64> = input
         .next()
         .unwrap()
         .replace("Time:", "")
         .split(" ")
         .filter(|x| !x.is_empty())
-        .map(|x| x.trim().parse::<i32>().unwrap())
+        .map(|x| x.trim().parse::<i64>().unwrap())
         .collect();
 
-    let distances: Vec<i32> = input
+    let distances: Vec<i64> = input
         .next()
         .unwrap()
         .replace("Distance:", "")
         .split(" ")
         .filter(|x| !x.is_empty())
-        .map(|x| x.trim().parse::<i32>().unwrap())
+        .map(|x| x.trim().parse::<i64>().unwrap())
         .collect();
 
     let zip = times.iter().zip(distances.iter());
@@ -53,7 +58,7 @@ fn main() {
 
     // optimized implementation
     let start2 = Instant::now();
-    let mut results2: Vec<i32> = Vec::new();
+    let mut results2: Vec<i64> = Vec::new();
     for race in &races {
         // println!("{:?}", race);
         let (x1, x2) = quadratic_solution(race);
@@ -67,7 +72,69 @@ fn main() {
     );
 }
 
-fn quadratic_solution(race: &Race) -> (i32, i32) {
+fn part2() {
+    let mut input = include_str!("input.txt").lines();
+
+    let times: i64 = input
+        .next()
+        .unwrap()
+        .replace("Time:", "")
+        .replace(" ", "")
+        .parse::<i64>()
+        .unwrap();
+
+    let distances: i64 = input
+        .next()
+        .unwrap()
+        .replace("Distance:", "")
+        .replace(" ", "")
+        .parse::<i64>()
+        .unwrap();
+
+    let races = vec![Race {
+        time: times,
+        distance: distances,
+    }];
+
+    println!("Hello, world! {:?}", races);
+
+    // naive implementation
+    let start = Instant::now();
+    let mut results: Vec<i32> = Vec::new();
+    for race in &races {
+        let mut count = 0;
+        for i in 1..race.time - 1 {
+            let d = calculate_distance(i, race.time);
+            if d > race.distance {
+                count += 1;
+            }
+        }
+        results.push(count);
+    }
+
+    println!("got results {:?} in {:?}", results, start.elapsed());
+    println!(
+        "multiplied this is {}",
+        results.iter().fold(1, |acc, x| acc * x)
+    );
+
+    // optimized implementation
+    let start2 = Instant::now();
+    let mut results2: Vec<i64> = Vec::new();
+    for race in &races {
+        // println!("{:?}", race);
+        let (x1, x2) = quadratic_solution(race);
+        // println!("x1: {}, x2: {}", x1, x2);
+        results2.push(x2 - x1 + 1)
+    }
+    println!("got results {:?} in {:?}", results2, start2.elapsed());
+    println!(
+        "multiplied this is {}",
+        results2.iter().fold(1, |acc, x| acc * x)
+    );
+}
+
+fn quadratic_solution(race: &Race) -> (i64, i64) {
     /**
         distance = (total_time - hold_time) * hold_time
         200 = (30 - x) * x
@@ -81,14 +148,14 @@ fn quadratic_solution(race: &Race) -> (i32, i32) {
         10 - 20
         See https://en.wikipedia.org/wiki/Quadratic_equation
     **/
-    let total_time = race.time as f32;
-    let distance = (race.distance + 1) as f32;
+    let total_time = race.time as f64;
+    let distance = (race.distance + 1) as f64;
 
-    let d = f32::sqrt(total_time * total_time - (4.0 * -1.0 * (0.0 - distance)));
+    let d = f64::sqrt(total_time * total_time - (4.0 * -1.0 * (0.0 - distance)));
     let x1 = ((0.0 - total_time) + d) / -2.0;
     let x2 = ((0.0 - total_time) - d) / -2.0;
 
-    (x1.ceil() as i32, x2.floor() as i32)
+    (x1.ceil() as i64, x2.floor() as i64)
 }
 
 /**
@@ -133,12 +200,12 @@ x2 = (-15 - wortel(65)) / -2 = (-15 - 8,06) / -2 = -23,06 / -2 = 11,53
 
 **/
 
-fn calculate_distance(hold_time: i32, total_time: i32) -> i32 {
+fn calculate_distance(hold_time: i64, total_time: i64) -> i64 {
     (total_time - hold_time) * hold_time
 }
 
 #[derive(Debug)]
 struct Race {
-    time: i32,
-    distance: i32,
+    time: i64,
+    distance: i64,
 }
